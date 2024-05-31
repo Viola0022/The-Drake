@@ -81,10 +81,7 @@ public class BoardPos implements TilePos {
         if (this.i == pos.i() && Math.abs(this.j - pos.j()) == 1)
             return true;
 
-        if (this.j == pos.j() && Math.abs(this.i - pos.i()) == 1)
-            return true;
-
-        return false;
+        return this.j == pos.j() && Math.abs(this.i - pos.i()) == 1;
     }
 
     @Override
@@ -119,9 +116,7 @@ public class BoardPos implements TilePos {
         BoardPos other = (BoardPos) obj;
         if (i != other.i)
             return false;
-        if (j != other.j)
-            return false;
-        return true;
+        return j == other.j;
     }
 
     @Override

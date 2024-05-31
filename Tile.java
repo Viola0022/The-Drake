@@ -1,9 +1,14 @@
 package thedrake;
 
+import java.util.List;
+
 public interface Tile {
-    // Vrací True, pokud je tato dlaždice volná a lze na ni vstoupit.
+
+    // Returns true if the tile is empty (can be stepped on or placed on)
     public boolean canStepOn();
 
-    // Vrací True, pokud tato dlaždice obsahuje jednotku
+    // Returns true if the tile has a troop on it
     public boolean hasTroop();
+
+    public List<Move> movesFrom(BoardPos pos, GameState state);
 }
