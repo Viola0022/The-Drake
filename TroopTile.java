@@ -3,13 +3,15 @@ package thedrake;
 import java.util.List;
 import java.util.ArrayList;
 
-public class TroopTile implements Tile {
+import java.io.PrintWriter;
+
+public class TroopTile implements Tile, JSONSerializable {
 
     private final Troop troop;
     private final PlayingSide side;
     private final TroopFace face;
 
-    // Konstruktor
+    //Konstruktor
     public TroopTile(Troop troop, PlayingSide side, TroopFace face) {
         this.troop = troop;
         this.side = side;
@@ -52,15 +54,7 @@ public class TroopTile implements Tile {
         List<TroopAction> actions = troop.actions(face);
 
         // Loop through each action and generate the corresponding moves
-       /*for (TroopAction action : actions) {
-            // Get the target positions for the action
-            List<Move> targetPositions = action.movesFrom(pos, side(), state);
 
-          // Create moves for each target position
-            for (Move targetPos : targetPositions) {
-                possibleMoves.add(new StepOnly(pos, targetPos.target()));
-            }
-        }*/
         for (TroopAction action : actions) {
             possibleMoves.addAll(action.movesFrom(pos, side, state));
         }
@@ -68,10 +62,33 @@ public class TroopTile implements Tile {
         return possibleMoves;
     }
 
-
     // Vytvoří novou dlaždici, s jednotkou otočenou na opačnou stranu
     // (z rubu na líc nebo z líce na rub)
     public TroopTile flipped() {
         return face() == TroopFace.AVERS ? new TroopTile(troop, side, TroopFace.REVERS) : new TroopTile(troop, side, TroopFace.AVERS);
+    }
+
+   /* @Override
+    public void toJSON(PrintWriter writer) {
+        writer.print("{\"troop\":");
+        troop.toJSON(writer);
+        writer.print(",\"side\":\""); //maybe too many \
+        side.toJSON(writer);
+        writer.print("\",\"face\":\"");
+        //writer.print(",\"face\":");
+        face.toJSON(writer);
+        writer.print("\"}");
+        //writer.print("}");
+    }*/
+
+    @Override
+    public void toJSON(PrintWriter writer) {
+        writer.print("{\"troop\":");
+        troop.toJSON(writer);
+        writer.print(",\"side\":");
+        side.toJSON(writer);
+        writer.print(",\"face\":");
+        face.toJSON(writer);
+        writer.print("}");
     }
 }

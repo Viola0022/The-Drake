@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.io.PrintWriter;
+import java.util.TreeSet;
 
-public class BoardTroops {
+public class BoardTroops implements JSONSerializable {
     private final PlayingSide playingSide;
     private final Map<BoardPos, TroopTile> troopMap;
     private final TilePos leaderPosition;
@@ -14,8 +16,10 @@ public class BoardTroops {
 
     public BoardTroops(PlayingSide playingSide) {
         // Place for your code
+        //could be also this.
         this.playingSide = playingSide;
         this.troopMap = Collections.EMPTY_MAP;
+
         this.leaderPosition = TilePos.OFF_BOARD;
         this.guards = 0;
     }
@@ -37,6 +41,11 @@ public class BoardTroops {
         if (troopMap.containsKey(pos)) return Optional.of(troopMap.get(pos));
         return Optional.empty();
     }
+    /*
+        if (pos == TilePos.OFF_BOARD || !troopMap.containsKey(pos))
+            return Optional.empty();
+        return Optional.of(troopMap.get(pos));
+    }*/
 
     public PlayingSide playingSide() {
         // Place for your code
@@ -60,8 +69,7 @@ public class BoardTroops {
 
     public boolean isPlacingGuards() {
         // Place for your code
-        if (isLeaderPlaced() && guards < 2) return true;
-        else return false;
+        return isLeaderPlaced() && guards < 2;
     }
 
     public Set<BoardPos> troopPositions() {
@@ -71,36 +79,36 @@ public class BoardTroops {
 
     public BoardTroops placeTroop(Troop troop, BoardPos target) {
         // Place for your code
-        if(at(target).isPresent()) throw new IllegalArgumentException();
 
-        TilePos newleaderPosition = leaderPosition;
-        int newGuards = guards;
+        if (at(target).isPresent())
+            throw new IllegalArgumentException();
 
-        if(!isLeaderPlaced()) newleaderPosition = target;
-        if(isPlacingGuards()) newGuards = newGuards + 1;
+        Map<BoardPos, TroopTile> newTroops = new HashMap<>(troopMap);
+        newTroops.put(target, new TroopTile(troop, playingSide(), TroopFace.AVERS));
 
-        Map<BoardPos, TroopTile> newTroopMap = new HashMap<>(troopMap);
-        TroopTile newTroopTile = new TroopTile(troop, playingSide, TroopFace.AVERS);
-        newTroopMap.put(target, newTroopTile);
-        return new BoardTroops(playingSide, newTroopMap, newleaderPosition, newGuards);
+        return new BoardTroops(
+                playingSide,
+                newTroops,
+                isLeaderPlaced() ? leaderPosition : target,
+                isPlacingGuards() ? guards + 1 : guards);
     }
 
     public BoardTroops troopStep(BoardPos origin, BoardPos target) {
         // Place for your code
-        if(!isLeaderPlaced()) {
+        if (!isLeaderPlaced()) {
             throw new IllegalStateException(
                     "Cannot move troops before the leader is placed.");
         }
 
-        if(isPlacingGuards()) {
+        if (isPlacingGuards()) {
             throw new IllegalStateException(
                     "Cannot move troops before guards are placed.");
         }
 
-        if(!at(origin).isPresent() || at(target).isPresent()) throw new IllegalArgumentException();
+        if (!at(origin).isPresent() || at(target).isPresent()) throw new IllegalArgumentException();
 
         TilePos newLeaderPosition = leaderPosition;
-        if(leaderPosition.equals(origin)) newLeaderPosition = target;
+        if (leaderPosition.equals(origin)) newLeaderPosition = target;
 
         Map<BoardPos, TroopTile> newTroopMap = new HashMap<>(troopMap);
         TroopTile tile = newTroopMap.remove(origin);
@@ -132,27 +140,47 @@ public class BoardTroops {
 
     public BoardTroops removeTroop(BoardPos target) {
         // Place for your code
-        if(!isLeaderPlaced()) {
+        if (!isLeaderPlaced()) {
             throw new IllegalStateException(
                     "Cannot move troops before the leader is placed.");
         }
 
-        if(isPlacingGuards()) {
+        if (isPlacingGuards()) {
             throw new IllegalStateException(
                     "Cannot move troops before guards are placed.");
         }
 
-        if(!at(target).isPresent())
+        if (at(target).isEmpty())
             throw new IllegalArgumentException();
 
-        TilePos newLeaderPosition = leaderPosition;
-        int newGuards = guards;
-        if(leaderPosition.equals(target)) newLeaderPosition = TilePos.OFF_BOARD;
-        else newGuards = newGuards - 1;
 
-        Map<BoardPos, TroopTile> newTroopMap = new HashMap<>(troopMap);
-        newTroopMap.remove(target);
+        Map<BoardPos, TroopTile> newTroops = new HashMap<>(troopMap);
+        newTroops.remove(target);
 
-        return new BoardTroops(playingSide, newTroopMap, newLeaderPosition, newGuards);
+        return new BoardTroops( playingSide,
+                newTroops,
+                target.equals(leaderPosition) ? TilePos.OFF_BOARD : leaderPosition,
+                guards);
+        //playingSide, newTroopMap, newLeaderPosition, newGuards);
     }
+
+    @Override
+    public void toJSON(PrintWriter writer) {
+        writer.print("{\"side\":");
+        playingSide.toJSON(writer);
+        writer.print(",\"leaderPosition\":");
+        leaderPosition.toJSON(writer);
+        writer.printf(",\"guards\":%d,\"troopMap\":{", guards);
+        int counter = 0;
+        for (BoardPos x:new TreeSet<>(troopMap.keySet())) {
+            x.toJSON(writer);
+            writer.print(":");
+            troopMap.get(x).toJSON(writer);
+            counter++;
+            if (counter < troopMap.size())
+                writer.print(",");
+        }
+        writer.print("}}");
+    }
+
 }

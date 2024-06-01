@@ -1,13 +1,16 @@
 package thedrake;
 
 import java.util.Optional;
+import java.io.PrintWriter;
+import thedrake.JSONSerializable;
 
-public class GameState {
-    private final Board board;
-    private final PlayingSide sideOnTurn;
+public class GameState implements JSONSerializable {
     private final Army blueArmy;
     private final Army orangeArmy;
     private final GameResult result;
+    private final Board board;
+    private final PlayingSide sideOnTurn;
+
 
     public GameState(
             Board board,
@@ -67,12 +70,7 @@ public class GameState {
         if(armyNotOnTurn().boardTroops().at(pos).isPresent()) {
             return armyNotOnTurn().boardTroops().at(pos).get();
         }
-        else if(armyOnTurn().boardTroops().at(pos).isPresent()) {
-            return armyOnTurn().boardTroops().at(pos).get();
-        }
-        else {
-            return board().at(pos);
-        }
+        ---
     }*/
     public Tile tileAt(TilePos pos) {
         if (blueArmy.boardTroops().at(pos).isPresent()) {
@@ -92,14 +90,6 @@ public class GameState {
  Při implementaci vemte v úvahu zahájení hry. Dokud nejsou
  postaveny stráže, žádné pohyby jednotek po desce nejsou možné.
 */
-    /*private boolean canStepFrom(TilePos origin) {
-        if (result != GameResult.IN_PLAY) {
-            return false;
-        }
-        //Optional<TroopTile> troopTile = armyOnTurn().boardTroops().at(origin);
-        //return troopTile.isPresent();
-        return armyOnTurn().boardTroops().at(origin).isPresent();
-    }*/
     private boolean canStepFrom(TilePos origin) {
         if (!origin.equals(TilePos.OFF_BOARD)
                 && result.equals(GameResult.IN_PLAY)
@@ -128,7 +118,7 @@ public class GameState {
     // Vrací false, pokud stav hry není IN_PLAY nebo pokud
     // na zadané pozici nestojí jednotka hráče, který zrovna není na tahu.
     private boolean canCaptureOn(TilePos target) {
-        if (!result.equals(GameResult.IN_PLAY) || target.equals(TilePos.OFF_BOARD) || !armyNotOnTurn().boardTroops().at(target).isPresent()) //|| armyOnTurn().boardTroops().at(target).isPresent())
+        if (!result.equals(GameResult.IN_PLAY) || target.equals(TilePos.OFF_BOARD)|| !armyNotOnTurn().boardTroops().at(target).isPresent()) //|| armyOnTurn().boardTroops().at(target).isPresent())
             return false;
         return true;
     }
@@ -149,7 +139,7 @@ public class GameState {
  se vkládání jednotek řídí jinými pravidly než ve střední hře.
 */
     public boolean canPlaceFromStack(TilePos target) {
-       if (armyOnTurn().stack().isEmpty() || !canStepTo(target))
+        if (armyOnTurn().stack().isEmpty() || !canStepTo(target))
             return false;
 
         if (!armyOnTurn().boardTroops().isLeaderPlaced())
@@ -172,7 +162,6 @@ public class GameState {
             return createNewGameState(
                     armyNotOnTurn(),
                     armyOnTurn().troopStep(origin, target), GameResult.IN_PLAY);
-
         throw new IllegalArgumentException();
     }
 
@@ -192,6 +181,9 @@ public class GameState {
 
         throw new IllegalArgumentException();
     }
+
+
+
     public GameState captureOnly(BoardPos origin, BoardPos target) {
         if (canCapture(origin, target)) {
             Troop captured = armyNotOnTurn().boardTroops().at(target).get().troop();
@@ -204,7 +196,6 @@ public class GameState {
                     armyNotOnTurn().removeTroop(target),
                     armyOnTurn().troopFlip(origin).capture(captured), newResult);
         }
-
         throw new IllegalArgumentException();
     }
 
@@ -218,6 +209,7 @@ public class GameState {
 
         throw new IllegalArgumentException();
     }
+
 
     public GameState resign() {
         return createNewGameState(
@@ -237,7 +229,26 @@ public class GameState {
         if (armyOnTurn.side() == PlayingSide.BLUE) {
             return new GameState(board, armyOnTurn, armyNotOnTurn, PlayingSide.BLUE, result);
         }
-
         return new GameState(board, armyNotOnTurn, armyOnTurn, PlayingSide.ORANGE, result);
+    }
+
+
+    @Override
+    public void toJSON(PrintWriter writer) {
+
+        writer.print("{");
+        writer.print("\"result\":");
+        result.toJSON(writer);
+        writer.print(",");
+        writer.print("\"board\":");
+        board.toJSON(writer);
+        writer.print(",");
+        writer.print("\"blueArmy\":");
+        blueArmy.toJSON(writer);
+        writer.print(",");
+        writer.print("\"orangeArmy\":");
+        orangeArmy.toJSON(writer);
+        writer.print("}");
+
     }
 }

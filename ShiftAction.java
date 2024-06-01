@@ -14,16 +14,15 @@ public class ShiftAction extends TroopAction {
     }
 
     @Override
-    public List<Move> movesFrom(BoardPos origin, PlayingSide side, GameState state) {
+    public List<Move> movesFrom(BoardPos origin, PlayingSide side, GameState state)
+    {
         List<Move> result = new ArrayList<>();
         TilePos target = origin.stepByPlayingSide(offset(), side);
-
         if (state.canStep(origin, target)) {
             result.add(new StepOnly(origin, (BoardPos) target));
         } else if (state.canCapture(origin, target)) {
             result.add(new StepAndCapture(origin, (BoardPos) target));
         }
-
-        return result;
+    return result;
     }
 }

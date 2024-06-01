@@ -12,7 +12,7 @@ public class StrikeAction extends TroopAction {
     public StrikeAction(int offsetX, int offsetY) {
         super(offsetX, offsetY);
     }
-
+    //captureOnly generator
     @Override
     public List<Move> movesFrom(BoardPos origin, PlayingSide side, GameState state) {
         List<Move> result = new ArrayList<>();
@@ -20,30 +20,20 @@ public class StrikeAction extends TroopAction {
 
         if (state.canCapture(origin, target))
             result.add(new CaptureOnly(origin, (BoardPos) target));
-
         return result;
     }
 }
-    /*public StrikeAction(Offset2D offset) {
-        super(offset);
-    }
-
-    public StrikeAction(int offsetX, int offsetY) {
-        super(offsetX, offsetY);
-    }
-
+    /*
     @Override
     public List<Move> movesFrom(BoardPos origin, PlayingSide side, GameState state) {
         List<Move> result = new ArrayList<>();
         TilePos target = origin.stepByPlayingSide(offset(), side);
 
+    OR NOT??
         if(state.canStep(origin, target)) {
             result.add(new StepOnly(origin, (BoardPos)target));
         } else if(state.canCapture(origin, target)) {
             result.add(new StepAndCapture(origin, (BoardPos)target));
         }
-
-        return result;
-    }
-}
+  ???
 */

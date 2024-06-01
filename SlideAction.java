@@ -13,23 +13,25 @@ public class SlideAction extends TroopAction {
         super(offsetX, offsetY);
     }
 
+    //generates all possible moves
     @Override
     public List<Move> movesFrom(BoardPos origin, PlayingSide side, GameState state) {
         List<Move> result = new ArrayList<>();
         TilePos target = origin.stepByPlayingSide(offset(), side);
 
+        //canStep moves
         while (true){
             if (state.canStep(origin, target)){
                 result.add(new StepOnly(origin, (BoardPos) target));
                 target = target.stepByPlayingSide(offset(), side);
                 continue;
             }
-            else if (state.canCapture(origin, target))
+            //can Capture moves
+            else if (state.canCapture(origin, target)) {
                 result.add(new StepAndCapture(origin, (BoardPos) target));
-
-            break;
+            }
+            break ;
         }
-
-        return result;
+    return result;
     }
 }

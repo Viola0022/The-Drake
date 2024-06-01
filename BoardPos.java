@@ -3,7 +3,9 @@ package thedrake;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BoardPos implements TilePos {
+import java.io.PrintWriter;
+
+public class BoardPos implements TilePos, JSONSerializable, Comparable<BoardPos> {
     private final int dimension;
     private final int i;
     private final int j;
@@ -122,5 +124,15 @@ public class BoardPos implements TilePos {
     @Override
     public String toString() {
         return String.format("%c%d", column(), row());
+    }
+
+    @Override
+    public void toJSON(PrintWriter writer) {
+        //writer.print('"'+this.toString()+'"');
+        writer.printf("\"%s\"", this.toString());
+    }
+    @Override
+    public int compareTo(BoardPos boardPos) {
+        return toString().compareTo(boardPos.toString());
     }
 }

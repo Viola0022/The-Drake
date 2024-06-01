@@ -1,11 +1,15 @@
 package thedrake;
 
 import java.util.List;
+import java.io.PrintWriter;
 
-public interface TilePos {
+public interface TilePos extends JSONSerializable {
 
     public static final TilePos OFF_BOARD = new TilePos() {
 
+        /*@Override
+        public void toJSON(PrintWriter writer) {  writer.printf("\"%c%d\"", column(), row());} //writer.print('"'+this.toString()+'"'); }
+        */
         @Override
         public int i() {
             throw new UnsupportedOperationException();
@@ -59,6 +63,11 @@ public interface TilePos {
         @Override
         public String toString() {
             return "off-board";
+        }
+
+        @Override
+        public void toJSON(PrintWriter writer) {
+            writer.print("\"off-board\"");
         }
     };
 
