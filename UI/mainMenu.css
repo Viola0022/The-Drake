@@ -1,0 +1,19 @@
+.root {
+    -fx-background-image: url('menuImage.jpg'); /* Update the path as per your project structure */
+    -fx-background-size: cover;
+}
+
+
+.button {
+    -fx-background-color: #F9E0A9; /* Background color similar to the buttons in the image */
+    -fx-text-fill: #000000; /* Text color similar to the buttons in the image */
+    -fx-background-radius: 20; /* Rounded corners */
+    -fx-font-family: Quicksand;
+}
+
+.label {
+    -fx-font-size: 48px;
+    -fx-text-fill: #F9E0A9; /* Color similar to the text color in the image */
+    -fx-alignment: center; /* Center align the text */
+    -fx-font-family: Quicksand;
+}
